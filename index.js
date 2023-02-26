@@ -25,13 +25,14 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         const database = client.db("cht-travel");
-        const addedCollection = database.collection("hotelsBandarban");
+        const allHotelBandarban = database.collection("hotelsBandarban");
+        const localLanguages = database.collection("local-languages");
         const paymentCollection = database.collection("payment");
         const usersCollection = database.collection("users");
 
         //GET API
-        app.get("/hotels-bdbn", async (req, res) => {
-            const result = await addedCollection.find().toArray();
+        app.get("/hotels", async (req, res) => {
+            const result = await allHotelBandarban.find().toArray();
             res.send(result);
         });
 
@@ -41,29 +42,36 @@ async function run() {
             res.send(result);
         });
 
+        // get all local languages
+        app.get("/local-language", async (req, res) => {
+            const result = await localLanguages.find().toArray();
+            res.send(result);
+        });
+
+        // get users
         app.get("/api/users", async (req, res) => {
             const result = await usersCollection.find().toArray();
             res.send(result);
         });
 
-        // GET SINGLE SERVICE
+        // GET SINGLE HOTEL
         app.get("/hotel/:id", async (req, res) => {
             const id = req.params.id;
-            const service = await addedCollection.findOne({ _id: ObjectId(id) });
+            const service = await allHotelBandarban.findOne({ _id: ObjectId(id) });
             res.send(service);
         });
 
         //  POST / INSERT API
         app.post("/addHotels", async (req, res) => {
             const packageDetails = req.body;
-            const result = await addedCollection.insertOne(packageDetails);
+            const result = await allHotelBandarban.insertOne(packageDetails);
             res.json(result);
         });
 
         // DELETE API
         app.delete("/hotel/:id", async (req, res) => {
             const id = req.params.id;
-            const result = await addedCollection.deleteOne({ _id: ObjectId(id) });
+            const result = await allHotelBandarban.deleteOne({ _id: ObjectId(id) });
             res.json(result);
         });
 
@@ -71,7 +79,7 @@ async function run() {
         app.put("/updateHotel/:id", async (req, res) => {
             console.log("req--->", req.body);
             const id = req.params.id;
-            const result = addedCollection.updateOne(
+            const result = allHotelBandarban.updateOne(
                 { _id: ObjectId(id) },
                 {
                     $set: {
@@ -223,9 +231,9 @@ run().catch(console.dir);
 
 //sever running test
 app.get('/', async (req, res) => {
-    res.send(`Cht-travel server is running on ${port}`);
+    res.send(`Cht-travel server is running on ${port} numbers`);
 });
 
 app.listen(port, () => {
-    console.log(`It's working on ${port}`);
+    console.log(`It's running on ${port}`);
 });
