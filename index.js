@@ -1,6 +1,7 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
+const { query } = require('express');
 const app = express();
 require('dotenv').config();
 const port = process.env.PORT || 5000;
@@ -11,24 +12,35 @@ app.use(express.json());
 
 
 // database
-
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.88wnsqi.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.cnhrqkg.mongodb.net/?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverApi: ServerApiVersion.v1
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverApi: ServerApiVersion.v1
 });
+
+// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.88wnsqi.mongodb.net/?retryWrites=true&w=majority`;
+
+// const client = new MongoClient(uri, {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+//   serverApi: ServerApiVersion.v1
+// });
 
 // database end
 
 async function run() {
     try {
+        // database connection
+
         const database = client.db("cht-travel");
         const allHotelBandarban = database.collection("hotelsBandarban");
         const localLanguages = database.collection("local-languages");
         const paymentCollection = database.collection("payment");
         const usersCollection = database.collection("users");
+
+        //database connection ended
 
         //GET API
         app.get("/hotels", async (req, res) => {
@@ -57,8 +69,10 @@ async function run() {
         // GET SINGLE HOTEL
         app.get("/hotel/:id", async (req, res) => {
             const id = req.params.id;
-            const service = await allHotelBandarban.findOne({ _id: ObjectId(id) });
-            res.send(service);
+            const query = {_id:ObjectId(id)};
+            const singleHotel = await allHotelBandarban.findOne(query);
+            console.log(singleHotel)
+            res.send(singleHotel);
         });
 
         //  POST / INSERT API
