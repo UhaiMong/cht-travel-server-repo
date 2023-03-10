@@ -69,9 +69,11 @@ async function run() {
         // GET SINGLE HOTEL
         app.get("/hotel/:id", async (req, res) => {
             const id = req.params.id;
-            const query = {_id:ObjectId(id)};
+            console.log(id);
+            const query = { _id: new ObjectId(id) };
+            // console.log(query);
             const singleHotel = await allHotelBandarban.findOne(query);
-            console.log(singleHotel)
+            // console.log(singleHotel)
             res.send(singleHotel);
         });
 
@@ -85,7 +87,7 @@ async function run() {
         // DELETE API
         app.delete("/hotel/:id", async (req, res) => {
             const id = req.params.id;
-            const result = await allHotelBandarban.deleteOne({ _id: ObjectId(id) });
+            const result = await allHotelBandarban.deleteOne({ _id: new ObjectId(id) });
             res.json(result);
         });
 
@@ -94,7 +96,7 @@ async function run() {
             console.log("req--->", req.body);
             const id = req.params.id;
             const result = allHotelBandarban.updateOne(
-                { _id: ObjectId(id) },
+                { _id: new ObjectId(id) },
                 {
                     $set: {
                         title: req.body?.title,
@@ -229,6 +231,7 @@ async function run() {
         app.get("/checkAdmin/:email", async (req, res) => {
             const email = req.params.email;
             const query = { email: email };
+            console.log(query)
             const user = await usersCollection.findOne(query);
             let isAdmin = false;
             if (user?.role === "admin") {
