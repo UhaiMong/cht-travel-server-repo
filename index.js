@@ -4,6 +4,7 @@ const cors = require("cors");
 const { query } = require("express");
 const app = express();
 require("dotenv").config();
+const axios = require("axios");
 const port = process.env.PORT || 5000;
 
 // middleware
@@ -237,6 +238,28 @@ async function run() {
         isAdmin = true;
       }
       res.json({ admin: isAdmin });
+    });
+
+    // otp request
+    app.post("/optRequest", (req, res) => {
+      // Make a post Request.
+      const data = {
+        applicationId: "APP_083495",
+        password: "6de46320cb9d7e10f612e390f2add646",
+        subscriberId: `tel:88${req.body.number}`,
+        applicationHash: "abcdefgh",
+        applicationMetaData: {
+          client: "MOBILEAPP",
+          device: "Samsung S10",
+          os: "android 8",
+          appCode: "https://play.google.com/store/apps/details?id=lk",
+        },
+      };
+      console.log(data);
+      axios
+        .post("https://developer.bdapps.com/otp/request", data)
+        .then((res) => res.status(200).json(res))
+        .catch((err) => res.status(404).json(err));
     });
   } finally {
     //   await client.close();
