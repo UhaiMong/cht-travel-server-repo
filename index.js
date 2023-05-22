@@ -246,7 +246,7 @@ async function run() {
         const requestData = {
           applicationId: "APP_083495",
           password: "6de46320cb9d7e10f612e390f2add646",
-          subscriberId: "tel:8801642366376",
+          subscriberId: `tel:88${req.body.number}`,
           applicationHash: "abcdefgh",
           applicationMetaData: {
             client: "MOBILEAPP",
