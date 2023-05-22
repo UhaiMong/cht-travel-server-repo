@@ -240,26 +240,83 @@ async function run() {
       res.json({ admin: isAdmin });
     });
 
-    // otp request
-    app.post("/optRequest", (req, res) => {
-      // Make a post Request.
-      const data = {
-        applicationId: "APP_083495",
-        password: "6de46320cb9d7e10f612e390f2add646",
-        subscriberId: `tel:88${req.body.number}`,
-        applicationHash: "abcdefgh",
-        applicationMetaData: {
-          client: "MOBILEAPP",
-          device: "Samsung S10",
-          os: "android 8",
-          appCode: "https://play.google.com/store/apps/details?id=lk",
-        },
-      };
-      console.log(data);
-      axios
-        .post("https://developer.bdapps.com/otp/request", data)
-        .then((res) => res.status(200).json(res))
-        .catch((err) => res.status(404).json(err));
+    // send otp
+    app.post("/optRequest", async (req, res) => {
+      try {
+        const requestData = {
+          applicationId: "APP_083495",
+          password: "6de46320cb9d7e10f612e390f2add646",
+          subscriberId: `tel:88${req.body.number}`,
+          applicationHash: "abcdefgh",
+          applicationMetaData: {
+            client: "MOBILEAPP",
+            device: "Samsung S10",
+            os: "android 8",
+            appCode:
+              "https://play.google.com/store/apps/details?id=lk.dialog.megarunlor",
+          },
+        };
+
+        const response = await axios.post(
+          "https://developer.bdapps.com/subscription/otp/request",
+          requestData,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        // Handle the response
+        const responseData = response.data;
+        console.log("Status code:", responseData.statusCode);
+        console.log("Status detail:", responseData.statusDetail);
+        console.log("Reference number:", responseData.referenceNo);
+        console.log("Version:", responseData.version);
+
+        // Send the response back to the client
+        res.status(200).json(responseData);
+      } catch (error) {
+        // Handle error
+        console.error("Error:", error.message);
+        res.status(500).json({ error: "Internal server error" });
+      }
+    });
+
+    // verify otp
+    app.post("/verifyOTP", async (req, res) => {
+      try {
+        const requestData = {
+          applicationId: "APP_083495",
+          password: "6de46320cb9d7e10f612e390f2add646",
+          referenceNo: req.body.referenceNo,
+          otp: req.body.otp,
+        };
+
+        const response = await axios.post(
+          "https://developer.bdapps.com/subscription/otp/verify",
+          requestData,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        // Handle the response
+        const responseData = response.data;
+        console.log("Status code:", responseData.statusCode);
+        console.log("Status detail:", responseData.statusDetail);
+        console.log("Subscriber ID:", responseData.subscriberId);
+        console.log("Subscription status:", responseData.subscriptionStatus);
+        console.log("Version:", responseData.version);
+
+        // Send the response back to the client
+        res.status(200).json(responseData);
+      } catch (error) {
+        // Handle error
+        console.error("Error:", error.message);
+        res.status(500).json({ error: "Internal server error" });
+      }
     });
   } finally {
     //   await client.close();
